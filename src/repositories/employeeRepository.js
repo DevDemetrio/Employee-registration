@@ -66,6 +66,23 @@ class employeeRepository{
     })
   }
 
+  update(id, { nome, cpf, rg,endereco}){
+      return new Promise((resolve) =>{
+        const updateEmploy = {
+          id,
+          nome,
+          cpf,
+          rg,
+          endereco
+        }
+
+        employees = employees.map((employee) => (
+          employee.id === id ? updateEmploy : employee
+        ))
+
+        resolve(updateEmploy)
+      })
+  }
 
 }
 

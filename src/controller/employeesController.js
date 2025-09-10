@@ -40,9 +40,26 @@ class employeesController {
 
   }
   
-  update(){}
+  async update(request, response){
+    const {id} = request.params;
+    const {nome, cpf, rg,endereco} = request.body
+
+    const employeeIdExists = await employeeRepository.findById(id);
+  
+    if(!employeeIdExists){
+      return response.status(400).json({error: "Employee not found"})
+    }
+
+    const employe = await employeeRepository.update(id, {
+      nome, cpf, rg,endereco
+    })
+
+    response.json(employe);
+  }
   
 
 }
+
+
 
 module.exports = new employeesController(); 
