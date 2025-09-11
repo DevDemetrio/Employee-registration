@@ -1,87 +1,43 @@
 const {v4} = require('uuid')
-
-
-let employees =[
-  {
-    id: v4(),
-    nome: "João da Silva",
-    cpf: "123.456.789-00",
-    rg: "12.345.678-9",
-    endereco: "Rua das Flores, 123 - São Paulo, SP"
-  },
-  {
-    id: v4(),
-    nome: "Maria Oliveira",
-    cpf: "987.654.321-00",
-    rg: "98.765.432-1",
-    endereco: "Avenida Brasil, 456 - Rio de Janeiro, RJ"
-  },
-  {
-    id: v4(),
-    nome: "Carlos Pereira",
-    cpf: "111.222.333-44",
-    rg: "33.222.111-0",
-    endereco: "Rua dos Andradas, 789 - Belo Horizonte, MG"
-  }
-]
-
+const db = require('../database')
 
 class employeeRepository{
-  findAll(){
-    return new Promise((resolve, reject) =>{
-      resolve(employees)
-    }) 
-  }
-  findById(id){
-    return new Promise((resolve, reject) => resolve(
-      employees.find((employee) => employee.id === id),
-    ))
+  async findAll(orderBy='ASC'){
+  const direction = orderBy.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+   const row = await db.query(`SELECT id, nome, cpf, rg, endereco FROM myemployee ORDER BY nome ${direction}`)
+   return row
   }
 
-  findByCpf(cpf){
-    return new Promise((resolve, reject) => resolve(
-      employees.find((cpfs) => cpfs.cpf === cpf )
-    ))
+  async findById(id){
+    const [rows] = await db.query('SELECT * FROM myemployee WHERE id = $1',[id])
+    return rows
   }
 
-  delete(id){
-    return new Promise((resolve, reject) => {
-      employees = employees.filter((employee) => employee.id !== id);
-      resolve();
-    })
+  async findByCpf(cpf){
+    const [rows] = await db.query('SELECT * FROM myemployee WHERE cpf = $1',[cpf])
+    return rows
   }
 
-  create({nome, cpf, rg,endereco}){
-    return new Promise((resolve) => {
-      const NewEmploye = {
-        id: v4(),
-        nome,
-        cpf,
-        rg,
-        endereco
-      }
-
-      employees.push(NewEmploye);
-      resolve(NewEmploye);
-    })
+  async delete(id){
+   const [rows] = await db.query('DELETE FROM myemployee WHERE id = $1',[id])
+   return rows
   }
 
-  update(id, { nome, cpf, rg,endereco}){
-      return new Promise((resolve) =>{
-        const updateEmploy = {
-          id,
-          nome,
-          cpf,
-          rg,
-          endereco
-        }
+  async create({nome, cpf, rg,endereco}){
+    const [rows] = await db.query(`
+      INSERT INTO myemployee(nome, cpf, rg, endereco)
+      VALUES($1, $2, $3, $4)`,[nome, cpf, rg, endereco]);
 
-        employees = employees.map((employee) => (
-          employee.id === id ? updateEmploy : employee
-        ))
+      return rows
+  }
 
-        resolve(updateEmploy)
-      })
+  async update(id, { nome, cpf, rg,endereco}){
+     const row = await db.query(`
+      UPDATE myemployee
+      SET nome = $1, cpf = $2, rg = $3, endereco = $4
+      WHERE id = $5
+      RETURNING *
+      `,[nome, cpf, rg, endereco, id])
   }
 
 }
