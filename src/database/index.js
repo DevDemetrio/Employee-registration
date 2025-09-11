@@ -10,6 +10,16 @@ const client =  new Client({
 
 client.connect();
 
+
+
+
+exports.query = async (query) =>{
+    const result = await client.query('SELECT * FROM myemployee');
+    return result.rows;
+}
+
+//Query('SELECT * FROM myemployee').then(console.log)
+
 // CREATE TABLE myemployee (
     // id UUID NOT NULL UNIQUE DEFAULT uuid_generate_v4(),
     // nome VARCHAR(100) NOT NULL,
