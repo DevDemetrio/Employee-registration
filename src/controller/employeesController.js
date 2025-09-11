@@ -2,7 +2,8 @@ const employeeRepository = require('../repositories/employeeRepository')
 
 class employeesController {
   async index(request, response){
-    const employees = await employeeRepository.findAll()
+    const {orderBy} = request.query
+    const employees = await employeeRepository.findAll(orderBy)
     response.json(employees)
   }
 
